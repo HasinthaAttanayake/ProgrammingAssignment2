@@ -11,15 +11,41 @@ makeCacheMatrix <- function(x = matrix()) {
       x <<- y   
       Inv <<- NULL 
     }
-    getmatrix <- function() {x} #calls x
-    setinv <- function(solve) {Inv <<-solve(x)} #Solves inverse of matirx x
-    getinv <- function() {Inv}
-    list(setmatrix=setmatrix,getmatrix=getmatrix,setinv=setinv,getinv=getinv)
+    getmatrix <- function() x #calls x
+    setinv <- function(Fun = solve) Inv <<- Fun(x) #Solves inverse of matirx x, with defualt argument as the 'solve' fucntion
+    getinv <- function() Inv #calls value of inv
+    list(setmatrix=setmatrix,getmatrix=getmatrix,setinv=setinv,getinv=getinv) #function is expressed as a list of functions. 
 }
 
 
-## Write a short comment describing this function
+##This function computes the inverse of the special"matrix" returned by `makeCacheMatrix` above. If the inverse has
+#already been calculated (and the matrix has not changed), then
+#`cacheSolve` should retrieve the inverse from the cache.
 
 cacheSolve <- function(x, ...) {
         ## Return a matrix that is the inverse of 'x'
+    Inv <- x$getinv() #load inverse value from previous function
+    #if statement checks for non null inverse values, if present it will return Inverse of matrix.
+      if (!is.null(Inv)) {
+        message("getting cached data")
+        return(Inv)
+      }
+    # if Inv is null then cacheSolve will take matrix loaded into makeCacheMatrix and run it through Solve.
+    matdat <- x$getmatrix()
+    Inv <- solve(matdat)
+    x$setinv(Inv)
+    Inv
 }
+
+#Testing Mechanism
+#create a square matrix of n,n dimensions and store as variable e.g mat1
+# m<-makeCacheMatrix
+#run lists loading and computing data from functions in 'm'
+# m$setmatrix(mat1)
+# m$getmatrix()
+# m$setinv()
+# m$getinv()
+#check catched data with cacheSolve
+# cacheSolve(m)
+#Output is 'getting cached data' + Inverse of Matrix.
+#if m$setinv is not initialised in console then inverse is caluclated by cacheSolve
